@@ -24,13 +24,20 @@ function M.execute_commands(state, commands_table)
 	ui.hide_window(state.output.win)
 
 	if has_terminal_job_running(state.output.buf) then
-		vim.notify("A terminal is already running in the output buffer.", vim.log.levels.WARN)
+		vim.notify("Something is already running in the output buffer.", vim.log.levels.WARN)
 		state.output.win = ui.go_to_buf(state.output.buf, state.output.win)
 		return
 	end
 
 	local script = table.concat(commands_table, "\n")
-	local output_buf = ui.create_output_buf()
+	local output_buf
+	if state.output.buf == nil then
+		output_buf = ui.create_output_buf()
+	else
+		output_buf = state.output.buf
+		vim.bo[output_buf].modified = false
+	end
+
 	local output_state = { buf = output_buf, win = nil }
 	state.output = output_state
 
@@ -47,7 +54,7 @@ function M.execute_commands(state, commands_table)
 	})
 
 	if chan <= 0 then
-		vim.notify("Failed to start terminal for commands.", vim.log.levels.ERROR)
+		vim.notify("Failed to start a terminal for the commands.", vim.log.levels.ERROR)
 		return
 	end
 end
