@@ -2,9 +2,14 @@ local M = {}
 local config = require("mejkr.config")
 
 function M.create_window(buf, height)
-	height = height or config.config.default_height
-	vim.cmd(string.format("botright %dsplit", height))
+	if config.config.create_window_command ~= nil then
+		vim.cmd(config.config.create_window_command)
+	else
+		height = height or config.config.default_height
+		vim.cmd(string.format("botright %dsplit", height))
+	end
 	local win = vim.api.nvim_get_current_win()
+	vim.wo[win].winfixwidth = true
 	vim.api.nvim_win_set_buf(win, buf)
 	return win
 end
@@ -46,6 +51,15 @@ function M.create_output_buf()
 	vim.bo[buf].bufhidden = "hide"
 	vim.bo[buf].modifiable = false
 	vim.bo[buf].swapfile = false
+	vim.api.nvim_create_autocmd("TermOpen", {
+		buffer = output_buf, -- Only this buffer number
+		callback = function()
+			vim.schedule(function()
+				vim.api.nvim_buf_set_name(0, "Mejkr Output") -- Keep your name
+				vim.bo.modified = false
+			end)
+		end,
+	})
 	vim.api.nvim_buf_set_name(buf, "Mejkr Output")
 	return buf
 end

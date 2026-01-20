@@ -34,6 +34,7 @@ local defaults = {
 		manage_saved_commands = "<leader>mm",
 	},
 	enable_fish_completion = false,
+	create_window_command = nil,
 	default_height = 10,
 }
 

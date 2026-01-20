@@ -74,6 +74,11 @@ return {
 
     -- change the height of the buffers
     default_height = 10,
+
+    -- or if you prefer a vertical split, you can provide the command to create the window yourself
+    -- this overrides the default height option
+    create_window_command = "100vnew", -- creates a vertical split with 100 characted width
+    
   },
 }
 
