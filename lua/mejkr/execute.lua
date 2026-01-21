@@ -31,7 +31,7 @@ function M.execute_commands(state, commands_table)
 
 	local script = table.concat(commands_table, "\n")
 	local output_buf
-	if state.output.buf == nil then
+	if state.output.buf == nil or not vim.api.nvim_buf_is_valid(state.output.buf) then
 		output_buf = ui.create_output_buf()
 	else
 		output_buf = state.output.buf
