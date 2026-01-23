@@ -2,7 +2,7 @@ local M = {}
 local mejkr_io = require("mejkr.io")
 local state = require("mejkr.state").state
 local ui = require("mejkr.ui")
-local execute = require("mejkr.execute")
+local execution = require("mejkr.execute")
 local config = require("mejkr.config")
 
 function M.save_commands()
@@ -22,14 +22,14 @@ function M.edit_commands()
 	vim.cmd("startinsert")
 end
 
-function M.run()
+function M.execute_commands()
 	if state.stored_commands then
 		vim.notify("Executing commands...", vim.log.levels.INFO)
-		execute.execute_commands(state, state.stored_commands)
+		execution.execute_commands(state, state.stored_commands)
 		state.last_ran_commands = state.stored_commands
 	elseif state.last_ran_commands then
 		vim.notify("Executing last commands...", vim.log.levels.INFO)
-		execute.execute_commands(state, state.last_ran_commands)
+		execution.execute_commands(state, state.last_ran_commands)
 		state.last_ran_commands = state.last_ran_commands
 	else
 		vim.notify("No commands stored. Use :MejkrEdit to add some.", vim.log.levels.WARN)
@@ -58,7 +58,7 @@ function M.run_file()
 	end
 
 	local commands = to_run(filepath)
-	execute.execute_commands(state, commands)
+	execution.execute_commands(state, commands)
 
 	state.last_ran_commands = commands
 end

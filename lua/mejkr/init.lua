@@ -16,10 +16,10 @@ local command_definitions = {
 		config_key = "save_commands",
 		keymap_desc = "Mejkr save commands",
 	},
-	run = {
-		name = "MejkrRun",
-		desc = "Run current commands",
-		config_key = "run_commands",
+	execute_commands = {
+		name = "MejkrExecute",
+		desc = "Execute the current commands",
+		config_key = "execute_commands",
 		keymap_desc = "Mejkr execute commands",
 	},
 	run_file = {
