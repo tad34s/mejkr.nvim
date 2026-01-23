@@ -77,7 +77,7 @@ return {
 
     -- or if you prefer a vertical split, you can provide the command to create the window yourself
     -- this overrides the default height option
-    create_window_command = "100vnew", -- creates a vertical split with 100 characted width
+    create_window_command = "vertical 100 vsplit", -- creates a vertical split with 100 characted width
     
   },
 }

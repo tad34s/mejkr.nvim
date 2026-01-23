@@ -39,9 +39,8 @@ function M.execute_commands(state, commands_table)
 	end
 
 	local output_state = { buf = output_buf, win = nil }
-	state.output = output_state
-
 	output_state.win = ui.go_to_buf(output_state.buf, output_state.win)
+	state.output = output_state
 
 	local chan = vim.fn.termopen({ "sh", "-c", script }, {
 		on_exit = function(_, code, _)

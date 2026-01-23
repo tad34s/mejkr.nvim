@@ -5,7 +5,7 @@ function M.create_window(buf, height)
 	if config.config.create_window_command ~= nil then
 		vim.cmd(config.config.create_window_command)
 	else
-		height = height or config.config.default_height
+		height = config.config.default_height
 		vim.cmd(string.format("botright %dsplit", height))
 	end
 	local win = vim.api.nvim_get_current_win()
