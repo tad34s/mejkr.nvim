@@ -6,7 +6,11 @@ local execution = require("mejkr.execute")
 local config = require("mejkr.config")
 
 function M.save_commands()
-	mejkr_io.save_commands(state.stored_commands)
+	if state.stored_commands then
+		mejkr_io.save_commands(state.stored_commands)
+	else
+		vim.notify("Cannot save the commands, none currently stored.", vim.log.levels.WARN)
+	end
 end
 
 function M.edit_commands()
@@ -93,9 +97,7 @@ function M.manage_saved_commands()
 	-- Create the floating window
 	local win = vim.api.nvim_open_win(buf, true, win_config)
 
-	-- Open the file explorer in the specified directory
-	vim.cmd("lcd " .. vim.fn.fnameescape(dir)) -- Change local directory
-	vim.cmd("edit " .. vim.fn.fnameescape(dir)) -- Open netrw in that directory
+	vim.cmd("Explore " .. vim.fn.fnameescape(dir)) -- Open netrw in that directory
 end
 
 return M

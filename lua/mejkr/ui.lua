@@ -51,15 +51,6 @@ function M.create_output_buf()
 	vim.bo[buf].bufhidden = "hide"
 	vim.bo[buf].modifiable = false
 	vim.bo[buf].swapfile = false
-	vim.api.nvim_create_autocmd("TermOpen", {
-		buffer = output_buf, -- Only this buffer number
-		callback = function()
-			vim.schedule(function()
-				vim.api.nvim_buf_set_name(0, "Mejkr Output") -- Keep your name
-				vim.bo.modified = false
-			end)
-		end,
-	})
 	vim.api.nvim_buf_set_name(buf, "Mejkr Output")
 	return buf
 end

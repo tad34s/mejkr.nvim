@@ -52,6 +52,8 @@ function M.execute_commands(state, commands_table)
 		end,
 	})
 
+	vim.api.nvim_buf_set_name(output_state.buf, "Mejkr Output")
+
 	if chan <= 0 then
 		vim.notify("Failed to start a terminal for the commands.", vim.log.levels.ERROR)
 		return
