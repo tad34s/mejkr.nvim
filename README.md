@@ -2,7 +2,7 @@
 
 `mejkr.nvim` is a Neovim plugin for quickly executing and building code. It lets you easily define short scripts and run them from Neovim. You can also configure these scripts per file extension and per project.
 
-![Preview](https://i.imgur.com/C6nzRTn.gif)
+![Preview](https://i.imgur.com/YEI6LXc.gif)
 
 ## Usage
 
