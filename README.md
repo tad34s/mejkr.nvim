@@ -8,7 +8,7 @@
 
 To define the commands you wish to run, use `:MejkrEdit` or the default keybind `<leader>mc`. This opens a dedicated buffer for writing your instructions, which can then be executed with `:MejkrExecute` or `<leader>mx`. Output appears in a separate buffer for easy yanking. Toggle this output pane with `:MejkrToggleOutput` or `<leader>M`.
 
-For convenience, default configurations (some included) can be set in your config based on file type. Use `:MejkrRunFile` or `<leader>mr` to launch the appropriate instruction set for your current file.
+For convenience, default run commands based on the file extension can be set in your config (some are already pre-set). Use `:MejkrRunFile` or `<leader>mr` to launch the default commands based on the current file.
 
 If no new instructions are written via `:MejkrEdit`, then `:MejkrExecute` will repeat the last execution. This allows you to rerun a file without switching back to it.
 
