@@ -11,6 +11,7 @@ M.state = {
 	edit_buf = nil,
 	output_buf = nil,
 	_create_window_command = nil,
+	job_id = nil,
 }
 
 function M.state:create_window_cmd()

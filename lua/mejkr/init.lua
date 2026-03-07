@@ -39,9 +39,11 @@ function M.setup(user_config)
 		M[func_name] = func
 	end
 
+	M.restart_execution = commands.restart_execution
+	M.move_window = commands.move_window
 	vim.api.nvim_create_user_command(
-		"MejkrNewWindow",
-		commands.new_window,
+		"MejkrMoveWindow",
+		commands.move_window,
 		{ desc = "Change how the window is created for this session.", nargs = 1 }
 	)
 end

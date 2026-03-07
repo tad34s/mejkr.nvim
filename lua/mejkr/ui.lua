@@ -92,7 +92,6 @@ function M.toggle_output_buffer(state)
 end
 
 function M.redraw_window(state)
-	print(state)
 	if state._window and vim.api.nvim_win_is_valid(state._window) then
 		local curr_buf = vim.api.nvim_win_get_buf(state._window)
 		state:hide_window()

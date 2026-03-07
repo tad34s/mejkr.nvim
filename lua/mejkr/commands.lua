@@ -36,6 +36,15 @@ function M.execute_commands()
 	end
 end
 
+function M.restart_execution()
+	if execution.has_terminal_job_running(state) then
+		state.pending_restart = true
+		vim.fn.jobstop(state.job_id)
+		return
+	end
+	M.execute_commands()
+end
+
 function M.run_file()
 	local bufname = vim.api.nvim_buf_get_name(0)
 	if bufname == "" then
@@ -67,7 +76,7 @@ function M.toggle_output_buffer()
 	ui.toggle_output_buffer(state)
 end
 
-function M.new_window(cmd)
+function M.move_window(cmd)
 	if type(cmd) == "table" then
 		cmd = cmd.args
 	end
