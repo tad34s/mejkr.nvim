@@ -1,21 +1,24 @@
 local M = {}
 local config = require("mejkr.config")
 
-function M.create_window(buf, height)
-	if config.config.create_window_command ~= nil then
-		vim.cmd(config.config.create_window_command)
-	else
-		height = config.config.default_height
+function M.create_window(new_window_command)
+	if new_window_command == nil then
+		local height = config.config.default_height
 		vim.cmd(string.format("botright %dsplit", height))
+	elseif type(new_window_command) == "function" then
+		new_window_command()
+	elseif type(new_window_command) == "string" then
+		vim.cmd(new_window_command)
 	end
+
 	local win = vim.api.nvim_get_current_win()
 	vim.wo[win].winfixwidth = true
-	vim.api.nvim_win_set_buf(win, buf)
+	vim.wo[win].winfixbuf = true
 	return win
 end
 
 function M.create_edit_buf(state)
-	local buf = vim.api.nvim_create_buf(false, false)
+	local buf = vim.api.nvim_create_buf(true, false)
 	vim.api.nvim_buf_set_name(buf, "Mejkr Commands")
 
 	vim.bo[buf].buftype = "acwrite"
@@ -26,6 +29,7 @@ function M.create_edit_buf(state)
 	if state.stored_commands then
 		vim.api.nvim_buf_set_lines(buf, 0, -1, false, state.stored_commands)
 	end
+	vim.bo[buf].modified = false
 
 	if config.config.enable_fish_completion then
 		local completion = require("mejkr.completion")
@@ -38,7 +42,7 @@ function M.create_edit_buf(state)
 		callback = function()
 			local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 			state.stored_commands = lines
-			vim.bo[state.edit.buf].modified = false
+			vim.bo[buf].modified = false
 			vim.notify("Commands saved for this session!", vim.log.levels.INFO)
 		end,
 	})
@@ -55,49 +59,44 @@ function M.create_output_buf()
 	return buf
 end
 
-function M.go_to_buf(buf, win)
-	if buf and vim.api.nvim_buf_is_valid(buf) then
-		if win and vim.api.nvim_win_is_valid(win) then
-			vim.api.nvim_set_current_win(win)
-		else
-			win = M.create_window(buf)
-			vim.api.nvim_set_current_buf(buf)
-		end
-		return win
-	end
-end
-
-function M.hide_window(win)
-	if not win or not vim.api.nvim_win_is_valid(win) then
-		return
+function M.open_buf(buf, win, move_focus)
+	if move_focus == nil then
+		move_focus = true
 	end
 
-	local is_visible = false
-	for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-		if w == win then
-			is_visible = true
-			break
+	if win and vim.api.nvim_win_is_valid(win) then
+		if vim.api.nvim_win_get_buf(win) ~= buf then
+			vim.wo[win].winfixbuf = false
+			vim.api.nvim_win_set_buf(win, buf)
+			vim.wo[win].winfixbuf = true
 		end
 	end
 
-	if is_visible then
-		vim.api.nvim_win_hide(win)
+	if move_focus then
+		vim.api.nvim_set_current_win(win)
 	end
 end
 
 function M.toggle_output_buffer(state)
-	if not state.output.buf or not vim.api.nvim_buf_is_valid(state.output.buf) then
+	if not state.output_buf or not vim.api.nvim_buf_is_valid(state.output_buf) then
 		vim.notify("No output buffer.", vim.log.levels.WARN)
-		state.output.buf = nil
+		state.output_buf = nil
 		return
 	end
 
-	if state.output.win and vim.api.nvim_win_is_valid(state.output.win) then
-		M.hide_window(state.output.win)
-		state.output.win = nil
+	if state._window and vim.api.nvim_win_is_valid(state._window) then
+		state:hide_window()
 	else
-		state.output.win = M.go_to_buf(state.output.buf, state.output.win)
+		M.open_buf(state.output_buf, state:get_window())
 	end
 end
 
+function M.redraw_window(state)
+	print(state)
+	if state._window and vim.api.nvim_win_is_valid(state._window) then
+		local curr_buf = vim.api.nvim_win_get_buf(state._window)
+		state:hide_window()
+		M.open_buf(curr_buf, state:get_window())
+	end
+end
 return M

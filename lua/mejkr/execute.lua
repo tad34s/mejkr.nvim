@@ -20,44 +20,33 @@ local function has_terminal_job_running(buf)
 end
 
 function M.execute_commands(state, commands_table)
-	ui.hide_window(state.edit.win)
-	ui.hide_window(state.output.win)
-
-	if has_terminal_job_running(state.output.buf) then
+	if has_terminal_job_running(state.output_buf) then
 		vim.notify("Something is already running in the output buffer.", vim.log.levels.WARN)
-		state.output.win = ui.go_to_buf(state.output.buf, state.output.win)
+
+		ui.open_buf(state.output_buf, state:get_window(), false)
 		return
 	end
 
 	local script = table.concat(commands_table, "\n")
-	local output_buf
-	if state.output.buf == nil or not vim.api.nvim_buf_is_valid(state.output.buf) then
-		output_buf = ui.create_output_buf()
-	else
-		output_buf = state.output.buf
-		vim.bo[output_buf].modified = false
+	if state.output_buf == nil or not vim.api.nvim_buf_is_valid(state.output_buf) then
+		state.output_buf = ui.create_output_buf()
 	end
+	vim.bo[state.output_buf].modified = false
 
-	local output_state = { buf = output_buf, win = nil }
-	output_state.win = ui.go_to_buf(output_state.buf, output_state.win)
-	state.output = output_state
-
-	local chan = vim.fn.termopen({ "sh", "-c", script }, {
-		on_exit = function(_, code, _)
-			if code == 0 then
-				vim.notify("Commands finished successfully.", vim.log.levels.INFO)
-			else
-				vim.notify(("Commands exited with code %d."):format(code), vim.log.levels.ERROR)
-			end
-		end,
-	})
-
-	vim.api.nvim_buf_set_name(output_state.buf, "Mejkr Output")
-
-	if chan <= 0 then
-		vim.notify("Failed to start a terminal for the commands.", vim.log.levels.ERROR)
-		return
-	end
+	ui.open_buf(state.output_buf, state:get_window(), false)
+	vim.api.nvim_buf_call(state.output_buf, function()
+		vim.fn.jobstart({ "sh", "-c", script }, {
+			term = true,
+			on_exit = function(_, code, _)
+				if code == 0 then
+					vim.notify("Commands finished successfully.", vim.log.levels.INFO)
+				else
+					vim.notify(("Commands exited with code %d."):format(code), vim.log.levels.ERROR)
+				end
+			end,
+		})
+	end)
+	vim.api.nvim_buf_set_name(state.output_buf, "Mejkr Output")
 end
 
 return M

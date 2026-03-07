@@ -14,15 +14,11 @@ function M.save_commands()
 end
 
 function M.edit_commands()
-	ui.hide_window(state.output.win)
-
-	local edit_state = state.edit
-	if not edit_state.buf then
-		edit_state.buf = ui.create_edit_buf(state)
+	if not state.edit_buf then
+		state.edit_buf = ui.create_edit_buf(state)
 	end
 
-	edit_state.win = ui.go_to_buf(edit_state.buf, edit_state.win)
-	state.edit = edit_state
+	ui.open_buf(state.edit_buf, state:get_window(), true)
 	vim.cmd("startinsert")
 end
 
@@ -69,6 +65,14 @@ end
 
 function M.toggle_output_buffer()
 	ui.toggle_output_buffer(state)
+end
+
+function M.new_window(cmd)
+	if type(cmd) == "table" then
+		cmd = cmd.args
+	end
+	state._create_window_command = cmd
+	ui.redraw_window(state)
 end
 
 function M.manage_saved_commands()

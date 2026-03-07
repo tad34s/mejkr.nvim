@@ -25,14 +25,6 @@ local default_run_configs = {
 local defaults = {
 	run_configs = default_run_configs,
 	plugin_name = "mejkr",
-	keymaps = {
-		edit_commands = "<leader>mc",
-		save_commands = "<leader>ms",
-		execute_commands = "<leader>mx",
-		run_file = "<leader>mr",
-		toggle_output = "<leader>M",
-		manage_saved_commands = "<leader>mm",
-	},
 	enable_fish_completion = false,
 	create_window_command = nil,
 	default_height = 10,
