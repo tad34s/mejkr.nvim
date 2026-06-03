@@ -1,5 +1,6 @@
 local M = {}
 local config = require("mejkr.config")
+local mejkr_io = require("mejkr.io")
 
 function M.create_window(new_window_command)
 	if new_window_command == nil then
@@ -38,13 +39,7 @@ function M.create_edit_buf(state)
 	end
 
 	vim.api.nvim_create_autocmd("BufWriteCmd", {
-		buffer = buf,
-		callback = function()
-			local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-			state.stored_commands = lines
-			vim.bo[buf].modified = false
-			vim.notify("Commands saved for this session!", vim.log.levels.INFO)
-		end,
+		callback = mejkr_io.make_save_callback(state, config.config),
 	})
 
 	return buf

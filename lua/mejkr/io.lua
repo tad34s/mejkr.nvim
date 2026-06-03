@@ -38,9 +38,36 @@ function M.save_commands(stored_commands)
 
 	vim.fn.mkdir(M.data_path(), "p")
 
-	local result = vim.fn.writefile(stored_commands, filepath)
+	local _ = vim.fn.writefile(stored_commands, filepath)
 
 	vim.notify("Written to: " .. filepath, vim.log.levels.INFO)
+end
+
+function M.make_save_callback(state, config)
+	local function save(lines)
+		local path = M.project_data_file()
+		vim.fn.mkdir(M.data_path(), "p")
+		vim.fn.writefile(lines, path)
+	end
+
+	local save_behaviors = {
+		off = function(_) end,
+		already_saved = function(lines)
+			if vim.fn.filereadable(M.project_data_file()) == 1 then
+				save(lines)
+			end
+		end,
+		all = save,
+	}
+	local save_behavior = save_behaviors[config.autosave] or save_behaviors.off
+	return function(ev)
+		local buf = ev.buf
+		local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+		state.stored_commands = lines
+		vim.bo[buf].modified = false
+		vim.notify("Commands saved for this session!", vim.log.levels.INFO)
+		save_behavior(lines)
+	end
 end
 
 return M

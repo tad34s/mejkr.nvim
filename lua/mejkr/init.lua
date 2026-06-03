@@ -5,47 +5,71 @@ local M = {}
 
 local command_definitions = {
 	edit_commands = {
-		name = "MejkrEdit",
 		desc = "Create or edit current commands",
+		fn = commands.edit_commands,
 	},
 	save_commands = {
-		name = "MejkrSave",
 		desc = "Save current commands for this project",
+		fn = commands.save_commands,
 	},
-	execute_commands = {
-		name = "MejkrExecute",
+	execute = {
 		desc = "Execute the current commands",
+		fn = commands.execute,
 	},
 	run_file = {
-		name = "MejkrRunFile",
 		desc = "Run current file",
+		fn = commands.run_file,
 	},
 	toggle_output_buffer = {
-		name = "MejkrToggleOutput",
 		desc = "Toggle mejkr output window",
+		fn = commands.toggle_output_buffer,
 	},
 	manage_saved_commands = {
-		name = "MejkrManageSavedCommands",
 		desc = "Manage the files in which commands are saved",
+		fn = commands.manage_saved_commands,
 	},
+}
+
+local extra_exported_functions = {
+	"get_commands",
+	"execute_commands",
+	"stop_execution",
+	"restart_execution",
+	"change_window",
 }
 
 function M.setup(user_config)
 	config.setup(user_config)
 
-	for func_name, def in pairs(command_definitions) do
-		local func = commands[func_name]
+	vim.api.nvim_create_user_command("Mejkr", function(opts)
+		local subcmd = opts.fargs[1]
 
-		M[func_name] = func
+		if not subcmd or not command_definitions[subcmd] then
+			local valid = table.concat(vim.tbl_keys(command_definitions), ", ")
+			vim.notify("Unknown subcommand: " .. (subcmd or "") .. "\nValid: " .. valid, vim.log.levels.ERROR)
+			return
+		end
+
+		command_definitions[subcmd].fn()
+	end, {
+		nargs = "+",
+		desc = "Mejkr commands",
+		complete = function(arglead)
+			return vim.tbl_filter(function(key)
+				return key:find(arglead, 1, true) == 1
+			end, vim.tbl_keys(command_definitions))
+		end,
+	})
+
+	-- export commands also as functions
+	for func_name, def in pairs(command_definitions) do
+		M[func_name] = def.fn
 	end
 
-	M.restart_execution = commands.restart_execution
-	M.move_window = commands.move_window
-	vim.api.nvim_create_user_command(
-		"MejkrMoveWindow",
-		commands.move_window,
-		{ desc = "Change how the window is created for this session.", nargs = 1 }
-	)
+	-- export additional useful functions
+	for _, name in ipairs(extra_exported_functions) do
+		M[name] = commands[name]
+	end
 end
 
 return M

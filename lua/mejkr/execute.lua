@@ -28,7 +28,7 @@ function M.execute_commands(state, commands_table)
 				state.job_id = nil
 				if state.pending_restart then
 					state.pending_restart = false
-					commands.execute_commands()
+					commands.execute()
 					return
 				end
 				if code == 0 then

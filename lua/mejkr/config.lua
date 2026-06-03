@@ -28,9 +28,17 @@ local defaults = {
 	enable_fish_completion = false,
 	create_window_command = nil,
 	default_height = 10,
+	autosave = "already_saved",
 }
 
 M.config = vim.deepcopy(defaults)
+
+local function config_check(config)
+	local valid = { off = true, already_saved = true, all = true }
+	if not valid[config.autosave] then
+		vim.notify("Invalid autosave value: " .. tostring(config.autosave), vim.log.levels.WARN)
+	end
+end
 
 function M.setup(user_config)
 	M.config = vim.tbl_deep_extend("force", defaults, user_config or {})
@@ -38,6 +46,8 @@ function M.setup(user_config)
 	if user_config and user_config.run_configs then
 		M.config.run_configs = vim.tbl_extend("force", default_run_configs, user_config.run_configs)
 	end
+
+	config_check(M.config)
 end
 
 return M

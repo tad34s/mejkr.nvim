@@ -22,8 +22,17 @@ function M.edit_commands()
 	vim.cmd("startinsert")
 end
 
-function M.execute_commands()
-	if state.stored_commands then
+function M.execute()
+	local function is_empty(lines)
+		for _, line in ipairs(lines) do
+			if line ~= "" then
+				return false
+			end
+		end
+		return true
+	end
+
+	if state.stored_commands and not is_empty(state.stored_commands) then
 		vim.notify("Executing commands...", vim.log.levels.INFO)
 		execution.execute_commands(state, state.stored_commands)
 		state.last_ran_commands = state.stored_commands
@@ -34,15 +43,6 @@ function M.execute_commands()
 	else
 		vim.notify("No commands stored. Use :MejkrEdit to add some.", vim.log.levels.WARN)
 	end
-end
-
-function M.restart_execution()
-	if execution.has_terminal_job_running(state) then
-		state.pending_restart = true
-		vim.fn.jobstop(state.job_id)
-		return
-	end
-	M.execute_commands()
 end
 
 function M.run_file()
@@ -76,14 +76,6 @@ function M.toggle_output_buffer()
 	ui.toggle_output_buffer(state)
 end
 
-function M.move_window(cmd)
-	if type(cmd) == "table" then
-		cmd = cmd.args
-	end
-	state._create_window_command = cmd
-	ui.redraw_window(state)
-end
-
 function M.manage_saved_commands()
 	local dir = mejkr_io.data_path()
 	local width = math.floor(vim.o.columns * 0.8)
@@ -111,6 +103,37 @@ function M.manage_saved_commands()
 	local win = vim.api.nvim_open_win(buf, true, win_config)
 
 	vim.cmd("Explore " .. vim.fn.fnameescape(dir)) -- Open netrw in that directory
+end
+
+-- Also functions to be exported
+--
+function M.get_commands()
+	return state.stored_commands
+end
+
+function M.execute_commands(commands)
+	execution.execute_commands(state, commands)
+end
+
+function M.stop_execution()
+	if execution.has_terminal_job_running(state) then
+		state.pending_restart = true
+		vim.fn.jobstop(state.job_id)
+		return
+	end
+end
+
+function M.restart_execution()
+	M.stop_execution()
+	M.execute()
+end
+
+function M.change_window(cmd)
+	if type(cmd) == "table" then
+		cmd = cmd.args
+	end
+	state._create_window_command = cmd
+	ui.redraw_window(state)
 end
 
 return M

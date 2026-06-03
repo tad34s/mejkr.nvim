@@ -10,14 +10,14 @@ M.state = {
 	_window = nil,
 	edit_buf = nil,
 	output_buf = nil,
-	_create_window_command = nil,
+	_create_window_command = config.config.create_window_command,
 	job_id = nil,
 }
 
 function M.state:create_window_cmd()
-	if self._create_window_command == nil then
-		self._create_window_command = config.config.create_window_command
-	end
+	-- if self._create_window_command == nil then
+	-- 	self._create_window_command = config.config.create_window_command
+	-- end
 
 	return self._create_window_command
 end
